@@ -36,11 +36,8 @@ def main():
     # Call the preamble to process the arguments. If we don't exit then it will return the supplied system prefix.
     systemPrefix = preamble()
 
-    # So now we've got here, we set up the main program based off the system prefix.
-    prog = Program(systemPrefix)
-
-    # And add to the trace stacking.
-    prog.entry('main')
+    # So now we've got here, we set up the main program based off the system prefix and add the first trace.
+    prog = Program(name=systemPrefix, initialTrace='main')
 
     # If we've gotten here, then we want a normal run and we have found an appropriate input file, let's process it.
     # inpt = readInput(...)
@@ -57,7 +54,7 @@ def main():
 def preamble():
     # Do we have access to any argument information at all?
     if len(argv) == 0:
-        print('Fatal error')
+        print('Fatal error, cannot access any argument information')
         exit(100)
 
     # Sort out the arguments, with file name removed, first.
