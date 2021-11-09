@@ -1,4 +1,47 @@
+#   ------------------------------------------------------   #
+#                    -*- P R O G R A M -*-                   #
+#   ------------------------------------------------------   #
+#        This module contains the main global program        #
+#     variable and routines relating to files; input and     #
+#                output; and error handling.                 #
+#   ------------------------------------------------------   #
+#            Writen from [insert paper reference]            #
+#                     Copyright (c) 2021                     #
+#   ------------------------------------------------------   #
+#         Module author: Ava Dean, Oxford, Nov. 2021         #
+#   ------------------------------------------------------   #
+
+
 from pathlib import Path
+
+
+global prog
+
+
+def fileExists(file: str = None):
+    return Path(file).is_file()
+
+
+def getFileLines(file: str = None):
+    if not fileExists(file):
+        abort(f'Cannot find file {file} when reading settings')
+
+    with open(file) as openFile:
+        lines = openFile.read().splitlines()
+
+    return lines
+
+
+def setupProgram(name: str = None, initialTrace: str = None):
+    global prog
+
+    prog = Program(name=name, initialTrace=initialTrace)
+
+    return prog
+
+
+def abort(msg: str = '', code: int = 1):
+    prog.abort(msg=msg, code=code)
 
 
 class Program:
@@ -21,21 +64,17 @@ class Program:
         # Now we have an error file, we don't need any hard exits.
 
         # Get input file name
-        stdIn = f'{self.name}.inp'
+        self.stdIn = f'{self.name}.inp'
 
         # If it doesn't exist, then abort.
-        if not self.fileExists(stdIn):
-            self.abort(f'Cannot find input file, {stdIn}')
+        if not fileExists(self.stdIn):
+            self.abort(f'Cannot find input file, {self.stdIn}')
 
-        # Otherwise, open the file.
-        self.stdIn = self.openFile(file=stdIn, mode='rt')
+        ## Otherwise, open the file.
+        #self.stdIn = self.openFile(file=stdIn, mode='rt')
 
         # Get standard output file.
         self.stdOut = self.openFile(file=f'{self.name}.out', mode='at')
-
-    @staticmethod
-    def fileExists(file):
-        return Path(file).is_file()
 
     def openFile(self, file: str = None, mode: str = 'a'):
         openFile = open(file=file, mode=mode)
@@ -57,7 +96,7 @@ class Program:
         for n in range(1000):
             file = f'{self.name}-{n}.err'
 
-            if not self.fileExists(file):
+            if not fileExists(file):
                 return file
 
         print('Fatal error, cannot create error file')

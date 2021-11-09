@@ -11,7 +11,7 @@
 #            Writen from [insert paper reference]            #
 #                     Copyright (c) 2021                     #
 #   ------------------------------------------------------   #
-#               Written by Ava Dean, Nov. 2021               #
+#           Written by Ava Dean, Oxford, Nov. 2021           #
 #   ------------------------------------------------------   #
 #                                                            #
 #              __..--''``---....___   _..._    __            #
@@ -29,7 +29,9 @@
 from sys import argv
 
 # AVA modules.
-from program import Program
+from model import Model
+from program import setupProgram
+from settings import readSettings
 
 
 def main():
@@ -37,10 +39,13 @@ def main():
     systemPrefix = preamble()
 
     # So now we've got here, we set up the main program based off the system prefix and add the first trace.
-    prog = Program(name=systemPrefix, initialTrace='main')
+    prog = setupProgram(name=systemPrefix, initialTrace='main')
 
     # If we've gotten here, then we want a normal run and we have found an appropriate input file, let's process it.
-    # inpt = readInput(...)
+    sttngs = readSettings(prog.stdIn)
+
+    # Now we have settings from the input file, let's set up the model. This will create the system and its parameters.
+    mdl = Model(settings=sttngs)
 
     # Do lots of other things...
 
