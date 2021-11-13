@@ -30,7 +30,7 @@ from sys import argv
 
 # AVA modules.
 from model import Model
-from program import setupProgram
+from program import Program
 from settings import readSettings
 
 
@@ -38,11 +38,14 @@ def main():
     # Call the preamble to process the arguments. If we don't exit then it will return the supplied system prefix.
     systemPrefix = preamble()
 
-    # So now we've got here, we set up the main program based off the system prefix and add the first trace.
-    prog = setupProgram(name=systemPrefix, initialTrace='main')
+    # So now we've got here, we set up the main program based off the system prefix.
+    prog = Program(name=systemPrefix)
+
+    # And add the first trace.
+    prog.enter('main')
 
     # If we've gotten here, then we want a normal run and we have found an appropriate input file, let's process it.
-    sttngs = readSettings(prog.stdIn)
+    sttngs = readSettings(fileName=prog.stdInName, prog=prog)
 
     # Now we have settings from the input file, let's set up the model. This will create the system and its parameters.
     mdl = Model(settings=sttngs)
@@ -50,7 +53,7 @@ def main():
     # Do lots of other things...
 
     # And finally remove from the trace stracking.
-    prog.exit('main')
+    prog.leave('main')
 
     # And we're done!
     prog.stop(code=0)

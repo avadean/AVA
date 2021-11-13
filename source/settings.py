@@ -14,27 +14,33 @@
 
 
 from data import stringToValue
-from program import abort, getFileLines
+from program import getFileLines
 
 
 settingTypes = {}
 
 
-def setting(key: str = None, **kwargs):
+def setting(key: str = None, prog=None, **kwargs):
+    prog.enter('setting')
+
     key = key.strip().lower()
 
     settingObject = settingTypes.get(key, None)
 
     if settingObject is None:
-        abort(f'Key {key} does not correspond to setting')
+        prog.abort(f'Key {key} does not correspond to setting')
 
     newSetting = settingObject(key=key, **kwargs)
+
+    prog.leave('setting')
 
     return newSetting
 
 
-def readSettings(file: str = None):
-    lines = getFileLines(file)
+def readSettings(fileName: str = None, prog=None):
+    prog.enter('readSettings')
+
+    lines = getFileLines(file=fileName, prog=prog)
 
     lines = [line.strip() for line in lines if line.strip()]
 
@@ -69,14 +75,14 @@ def readSettings(file: str = None):
                 if len(settingKeys) == 1:
                     settingKeyOther = settingKeys[0]
                 else:
-                    abort(f'Error in block in line \'{line}\' of file {file}')
+                    prog.abort(f'Error in block in line \'{line}\' of file {fileName}')
 
                 if settingKey != settingKeyOther:
-                    abort(f'Entered block {settingKey} but found endblock {settingKeyOther}')
+                    prog.abort(f'Entered block {settingKey} but found endblock {settingKeyOther}')
 
                 arguments = {'lines': blockLines}
 
-                newSetting = setting(key=settingKey, **arguments)
+                newSetting = setting(key=settingKey, prog=prog, **arguments)
 
                 settings.append(newSetting)
 
@@ -102,7 +108,7 @@ def readSettings(file: str = None):
                 if len(settingKeys) == 1:
                     settingKey = settingKeys[0]
                 else:
-                    abort(f'Error in block in line \'{line}\' of file {file}')
+                    prog.abort(f'Error in block in line \'{line}\' of file {fileName}')
 
             else:
                 # If we're here then we have a keyword.
@@ -138,10 +144,12 @@ def readSettings(file: str = None):
                     arguments = {'value': value}
 
                 else:
-                    raise ValueError(f'Error in keyword {line} of file {file}')
+                    raise ValueError(f'Error in keyword {line} of file {fileName}')
 
-                newSetting = setting(key=key, **arguments)
+                newSetting = setting(key=key, prog=prog, **arguments)
 
                 settings.append(newSetting)
+
+    prog.leave('readSettings')
 
     return settings
